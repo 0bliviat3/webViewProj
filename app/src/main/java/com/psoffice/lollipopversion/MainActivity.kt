@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
+    private lateinit var ledController: LedController
     private var tapCount = 0
     private var lastTouchTime = 0L
 
@@ -51,8 +52,14 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        // LED javascript interface 설정
+        ledController = LedController(this)
+
         // WebView 설정
         webView = findViewById(R.id.webview)
+
+        webView.settings.javaScriptEnabled = true
+        webView.addJavascriptInterface(ledController, "android")
 
         // 앱 실행시 캐시 초기화
         clearWebViewData(webView);
