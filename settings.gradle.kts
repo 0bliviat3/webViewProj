@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "lollipopVersion"
+rootProject.name = "webviewProj"
 include(":app")
  

@@ -1,4 +1,4 @@
-package com.psoffice.lollipopversion.ui.theme
+package com.psoffice.webview.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
