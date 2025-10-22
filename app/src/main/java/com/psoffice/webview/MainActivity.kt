@@ -1,4 +1,4 @@
-package com.psoffice.lollipopversion
+package com.psoffice.webview
 
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
@@ -21,11 +21,13 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var ledController: LedController
+    private lateinit var prefs: PreferenceManager
     private var tapCount = 0
     private var lastTouchTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        prefs = PreferenceManager(this)
 
         // 전원 연결 상태 확인
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
@@ -88,7 +90,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        webView.loadUrl("http://10.40.49.243:8088/com/smartofc/mtgTablet_choice.do") // 원하는 URL로 변경
+        val url = prefs.loadUrl() ?: "http://10.40.49.243:8088/com/smartofc/mtgTablet_choice.do"
+        webView.loadUrl(url)
 
         setupExitTouchArea()
     }
