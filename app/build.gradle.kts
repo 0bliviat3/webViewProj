@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.psoffice.lollipopversion"
+    namespace = "com.psoffice.webview"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.psoffice.lollipopversion"
+        applicationId = "com.psoffice.webview"
         minSdk = 22
         targetSdk = 34
         versionCode = 1
