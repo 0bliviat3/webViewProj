@@ -28,7 +28,7 @@ class URLActivity : AppCompatActivity() {
             Toast.makeText(this, "저장되었습니다.", Toast.LENGTH_SHORT).show()
 
             // mainactivity로 이동
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, ConsoleWebActivity::class.java)
             startActivity(intent)
             finish()
         }
