@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -19,6 +22,21 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(FileInputStream(localPropertiesFile))
+
+            // 값읽기... 없다면 테스트용 ID
+            val appId = localProperties.getProperty("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713"
+            val openingAdId = localProperties.getProperty("ADMOB_OPEN_ID") ?: "ca-app-pub-3940256099942544/9257395921"
+
+            buildConfigField("String", "AD_ID", "\"$appId\"")
+            buildConfigField("String", "AD_OPEN_ID", "\"$openingAdId\"")
+
+            manifestPlaceholders["AD_ID"] = appId
+        }
     }
 
     buildTypes {
@@ -39,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"

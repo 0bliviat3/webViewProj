@@ -28,7 +28,7 @@ class AdLoader : Application(), Application.ActivityLifecycleCallbacks {
         val request = AdRequest.Builder().build()
         AppOpenAd.load(
             this,
-            "ca-app-pub-3940256099942544/9257395921", // ✅ 테스트용 ID
+            BuildConfig.AD_OPEN_ID,
             request,
             object : AppOpenAd.AppOpenAdLoadCallback() {
                 override fun onAdLoaded(ad: AppOpenAd) {
