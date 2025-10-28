@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.psoffice.lollipopversion",
+  "applicationId": "com.devtool.webview",
   "variantName": "release",
   "elements": [
     {
