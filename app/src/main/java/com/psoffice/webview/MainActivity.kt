@@ -77,10 +77,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             // 구버전 호환 (Android 5~)
-            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                view.loadUrl(url)
-                return true
-            }
+//            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+//                view.loadUrl(url)
+//                return true
+//            }
         }
 
         val url = prefs.loadUrl() ?: "http://10.40.49.243:8088/com/smartofc/mtgTablet_choice.do"

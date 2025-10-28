@@ -11,12 +11,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_webview_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        android:name=".AdLoader"
+        android:theme="@style/Theme.Splash"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
 
         <!-- 앱 최초 실행 Activity -->
         <activity
-            android:name=".URLActivity"
+            android:name=".SplashActivity"
             android:exported="true"
             android:screenOrientation="fullSensor"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
@@ -34,12 +39,16 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity
+            android:name=".URLActivity"
+            android:exported="true"
+            android:screenOrientation="fullSensor"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
             android:name=".ConsoleWebActivity"
             android:exported="true"
             android:screenOrientation="fullSensor"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
