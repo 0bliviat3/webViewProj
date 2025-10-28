@@ -22,11 +22,31 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+    }
 
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localProperties.load(FileInputStream(localPropertiesFile))
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(FileInputStream(localPropertiesFile))
+    }
+
+    buildTypes {
+        debug {
+            isMinifyEnabled = false
+            // Debug → 항상 테스트 광고
+            val testAppId = "ca-app-pub-3940256099942544~3347511713"
+            val testOpenId = "ca-app-pub-3940256099942544/9257395921"
+            buildConfigField("String", "AD_ID", "\"$testAppId\"")
+            buildConfigField("String", "AD_OPEN_ID", "\"$testOpenId\"")
+            manifestPlaceholders["AD_ID"] = testAppId
+
+        }
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
 
             // 값읽기... 없다면 테스트용 ID
             val appId = localProperties.getProperty("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713"
@@ -36,16 +56,6 @@ android {
             buildConfigField("String", "AD_OPEN_ID", "\"$openingAdId\"")
 
             manifestPlaceholders["AD_ID"] = appId
-        }
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
     compileOptions {
