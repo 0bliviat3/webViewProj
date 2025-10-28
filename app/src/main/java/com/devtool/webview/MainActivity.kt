@@ -1,4 +1,4 @@
-package com.psoffice.webview
+package com.devtool.webview
 
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG

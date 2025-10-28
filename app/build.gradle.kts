@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.psoffice.webview"
+    namespace = "com.devtool.webview"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.psoffice.webview"
+        applicationId = "com.devtool.webview"
         minSdk = 23
         targetSdk = 34
         versionCode = 1

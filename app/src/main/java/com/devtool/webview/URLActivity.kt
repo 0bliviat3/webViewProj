@@ -1,4 +1,4 @@
-package com.psoffice.webview
+package com.devtool.webview
 
 import android.content.ContentValues.TAG
 import android.content.Intent

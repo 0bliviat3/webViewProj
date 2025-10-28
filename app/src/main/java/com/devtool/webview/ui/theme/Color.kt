@@ -1,4 +1,4 @@
-package com.psoffice.webview.ui.theme
+package com.devtool.webview.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
