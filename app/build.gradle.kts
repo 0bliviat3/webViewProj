@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.devtool.webview"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.devtool.webview"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -42,6 +42,7 @@ android {
 
         }
         release {
+            manifestPlaceholders += mapOf()
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -59,6 +60,7 @@ android {
 
             buildConfigField("String", "AD_ID", "\"$appId\"")
             buildConfigField("String", "AD_OPEN_ID", "\"$openingAdId\"")
+            signingConfig = signingConfigs.getByName("debug")
 
             manifestPlaceholders["AD_ID"] = appId
         }
