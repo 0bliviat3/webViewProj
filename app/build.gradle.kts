@@ -48,9 +48,14 @@ android {
                 "proguard-rules.pro"
             )
 
-            // 값읽기... 없다면 테스트용 ID
-            val appId = localProperties.getProperty("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713"
-            val openingAdId = localProperties.getProperty("ADMOB_OPEN_ID") ?: "ca-app-pub-3940256099942544/9257395921"
+            val isProduction = localProperties.getProperty("IS_PRODUCTION") ?: "false"
+            var appId = "ca-app-pub-3940256099942544~3347511713"
+            var openingAdId = "ca-app-pub-3940256099942544/9257395921"
+            if (isProduction == "true") {
+                // 값읽기... 없다면 test ID
+                appId = localProperties.getProperty("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713"
+                openingAdId = localProperties.getProperty("ADMOB_OPEN_ID") ?: "ca-app-pub-3940256099942544/9257395921"
+            }
 
             buildConfigField("String", "AD_ID", "\"$appId\"")
             buildConfigField("String", "AD_OPEN_ID", "\"$openingAdId\"")
