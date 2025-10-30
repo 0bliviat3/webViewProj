@@ -61,15 +61,22 @@
             android:layout_weight="1"
             android:background="#121212">
 
-            <TextView
-                android:id="@+id/consoleView"
+            <!-- 기존 TextView 대신 동적 콘솔 블록을 담는 영역 -->
+            <LinearLayout
+                android:id="@+id/consoleOutputContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:textSize="14sp"
-                android:fontFamily="monospace"
-                android:textColor="#DDDDDD"
-                android:text="--- JS Terminal ---\n" />
+                android:orientation="vertical"
+                android:padding="8dp" />
+<!--            <TextView-->
+<!--                android:id="@+id/consoleView"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="8dp"-->
+<!--                android:textSize="14sp"-->
+<!--                android:fontFamily="monospace"-->
+<!--                android:textColor="#DDDDDD"-->
+<!--                android:text="-&#45;&#45; JS Terminal -&#45;&#45;\n" />-->
         </ScrollView>
 
         <!-- 콘솔 입력 -->
