@@ -68,15 +68,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="8dp" />
-<!--            <TextView-->
-<!--                android:id="@+id/consoleView"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:padding="8dp"-->
-<!--                android:textSize="14sp"-->
-<!--                android:fontFamily="monospace"-->
-<!--                android:textColor="#DDDDDD"-->
-<!--                android:text="-&#45;&#45; JS Terminal -&#45;&#45;\n" />-->
         </ScrollView>
 
         <!-- 콘솔 입력 -->

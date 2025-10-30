@@ -23,11 +23,14 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class ConsoleWebActivity: AppCompatActivity() {
 
     private lateinit var webView: WebView
-    //private lateinit var consoleView: TextView
     private lateinit var input: EditText
     private lateinit var scrollConsole: ScrollView
     private lateinit var consoleContainer: LinearLayout
@@ -45,7 +48,6 @@ class ConsoleWebActivity: AppCompatActivity() {
         setContentView(R.layout.activity_console_web)
 
         webView = findViewById(R.id.webView)
-        //consoleView = findViewById(R.id.consoleView)
         input = findViewById(R.id.consoleInput)
         scrollConsole = findViewById(R.id.scrollConsole)
         consoleContainer = findViewById(R.id.consoleContainer)
@@ -60,6 +62,7 @@ class ConsoleWebActivity: AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 titleText.text = view?.title ?: "Console WebView"
+                injectConsoleHelper()
             }
         }
 
@@ -72,7 +75,8 @@ class ConsoleWebActivity: AppCompatActivity() {
                         ConsoleMessage.MessageLevel.WARNING -> "warn"
                         else -> "log"
                     }
-                    appendConsole(it.message(), type)
+                    appendConsoleBlockFromSimpleText(it.message(), type)
+                    //appendConsole(it.message(), type)
                 }
                 return true
             }
@@ -91,9 +95,11 @@ class ConsoleWebActivity: AppCompatActivity() {
             ) {
                 val code = input.text.toString()
                 if (code.isNotBlank()) {
-                    appendConsole("> $code")
+                    appendConsoleBlockRawInput(code)
+                    //appendConsole("> $code")
                     input.text.clear()
-                    runJavascript(code)
+                    runJavascriptThroughHelper(code)
+                    //runJavascript(code)
                 }
                 true
             } else false
@@ -154,38 +160,123 @@ class ConsoleWebActivity: AppCompatActivity() {
         consoleOutputContainer.addView(headerView)
     }
 
-    fun runJavascript(jsCode: String) {
+    /** JS Helper 주입 **/
+    private fun injectConsoleHelper() {
+        val js = loadJSFromAsset("console_helper.js")
+        webView.evaluateJavascript(js, null)
+    }
 
-        webView.evaluateJavascript(jsCode) { result ->
-            val display = when (result) {
-                null, "null", "undefined" -> "undefined"
-                else -> result.trim('"')
+    /** assets/console_helper.js 읽기 **/
+    private fun loadJSFromAsset(fileName: String): String {
+        val sb = StringBuilder()
+        assets.open(fileName).use { input ->
+            BufferedReader(InputStreamReader(input)).use { reader ->
+                reader.forEachLine { sb.append(it).append("\n") }
             }
-            appendConsole(display, "info")
+        }
+        return sb.toString()
+    }
+
+    /** 사용자 입력 JS 실행 **/
+    private fun runJavascriptThroughHelper(userCode: String) {
+        val escaped = userCode.replace("\\", "\\\\").replace("\"","\\\"").replace("\n","\\n")
+        val call = "typeof window.__consoleHelper !== 'undefined' ? window.__consoleHelper.exec(\"$escaped\") : \"undefined\";"
+
+        webView.evaluateJavascript(call) { result ->
+            try {
+                val jsonStr = result.trim('"').replace("\\n","\n").replace("\\\"","\"")
+                val tree = JSONObject(jsonStr)
+                appendConsoleBlockFromTree(tree)
+            } catch (e: Exception) {
+                appendConsoleBlockFromSimpleText(result, "error")
+            }
         }
     }
 
-//    private fun appendConsole(text: String, type: String = "log") {
-//        runOnUiThread {
-//            val coloredText = when (type) {
-//                "error" -> "<font color='#FF5555'>$text</font>"
-//                "info" -> "<font color='#AAAAAA'>$text</font>"
-//                else -> "<font color='#DDDDDD'>$text</font>"
-//            }
-//            consoleView.append(android.text.Html.fromHtml(coloredText + "<br>"))
-//            scrollConsole.post { scrollConsole.fullScroll(ScrollView.FOCUS_DOWN) }
-//        }
-//    }
+    private fun appendConsoleBlockFromTree(tree: JSONObject, parent: LinearLayout? = null, indentLevel: Int = 0) {
+        val container = parent ?: consoleOutputContainer
+        val inflater = layoutInflater
 
-    private fun appendConsole(text: String, type: String = "log") {
+        val blockView = inflater.inflate(R.layout.console_block_item, container, false)
+        val textView = blockView.findViewById<TextView>(R.id.consoleText)
+
+        // 색상 지정
+        val type = tree.optString("type", "log")
+        textView.setTextColor(
+            when(type){
+                "error" -> 0xFFFF5555.toInt()
+                "function" -> 0xFFAA88FF.toInt()
+                "info" -> 0xFFAAAAAA.toInt()
+                else -> 0xFFDDDDDD.toInt()
+            }
+        )
+
+        // key:value 표시
+        val key = tree.optString("key", "")
+        val value = tree.opt("value")
+        if(value != null) {
+            textView.text = if(key.isNotEmpty()) "$key : $value" else value.toString()
+            blockView.setOnClickListener { copyToClipboard(value.toString(), blockView) }
+            textView.setPadding(8 + 20*indentLevel, 4, 4, 4)
+            container.addView(blockView)
+        }
+
+        // children 재귀 처리
+        if(tree.has("children")) {
+            val foldButton = TextView(this)
+            foldButton.text = "+ expand"
+            foldButton.setTextColor(0xFFAAAAAA.toInt())
+            foldButton.setPadding(8 + 20*indentLevel, 4, 4, 4)
+            container.addView(foldButton)
+
+            val childrenContainer = LinearLayout(this)
+            childrenContainer.orientation = LinearLayout.VERTICAL
+            childrenContainer.visibility = LinearLayout.GONE
+            container.addView(childrenContainer)
+
+            foldButton.setOnClickListener {
+                if (childrenContainer.visibility == LinearLayout.GONE) {
+                    childrenContainer.visibility = LinearLayout.VISIBLE
+                    foldButton.text = "- collapse"
+                } else {
+                    childrenContainer.visibility = LinearLayout.GONE
+                    foldButton.text = "+ expand"
+                }
+            }
+
+            val children = tree.get("children")
+            when (children) {
+                is JSONObject -> {
+                    children.keys().forEach { k ->
+                        val child = children.getJSONObject(k)
+                        appendConsoleBlockFromTree(child, childrenContainer, indentLevel + 1)
+                    }
+                }
+                is JSONArray -> {
+                    for (i in 0 until children.length()) {
+                        val child = children.getJSONObject(i)
+                        appendConsoleBlockFromTree(child, childrenContainer, indentLevel + 1)
+                    }
+                }
+            }
+        }
+
+        scrollConsole.post { scrollConsole.fullScroll(ScrollView.FOCUS_DOWN) }
+    }
+
+
+
+
+    private fun appendConsoleBlockFromSimpleText(text: String, type: String = "log") {
         runOnUiThread {
             val inflater = layoutInflater
             val blockView = inflater.inflate(R.layout.console_block_item, consoleOutputContainer, false)
             val textView = blockView.findViewById<TextView>(R.id.consoleText)
+            textView.text = text
 
-            // 색상 지정
+            // 색상
             textView.setTextColor(
-                when (type) {
+                when(type){
                     "error" -> 0xFFFF5555.toInt()
                     "info" -> 0xFFAAAAAA.toInt()
                     "input" -> 0xFF66CCFF.toInt()
@@ -193,14 +284,24 @@ class ConsoleWebActivity: AppCompatActivity() {
                 }
             )
 
-            textView.text = text
-
-            // 클릭 시 복사 기능
+            // 복사 기능
             blockView.setOnClickListener { copyToClipboard(text, blockView) }
 
             consoleOutputContainer.addView(blockView)
             scrollConsole.post { scrollConsole.fullScroll(ScrollView.FOCUS_DOWN) }
         }
+    }
+
+    private fun appendConsoleBlockRawInput(code: String){
+        val inflater = layoutInflater
+        val blockView = inflater.inflate(R.layout.console_block_item, consoleOutputContainer, false)
+        val textView = blockView.findViewById<TextView>(R.id.consoleText)
+        textView.text = "> $code"
+
+        blockView.setOnClickListener { copyToClipboard(code, blockView) }
+
+        consoleOutputContainer.addView(blockView)
+        scrollConsole.post { scrollConsole.fullScroll(ScrollView.FOCUS_DOWN) }
     }
 
 
