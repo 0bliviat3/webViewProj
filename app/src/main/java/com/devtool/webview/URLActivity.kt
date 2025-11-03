@@ -37,6 +37,20 @@ class URLActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+
+        // 엔터키누를때도 저장처리
+        serverUrl.setOnEditorActionListener { _, actionId, event ->
+            val isEnter = actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                    (event != null && event.keyCode == android.view.KeyEvent.KEYCODE_ENTER && event.action == android.view.KeyEvent.ACTION_DOWN)
+
+            if (isEnter) {
+                findViewById<Button>(R.id.btn_save).performClick()
+                true // 이벤트 소비
+            } else {
+                false
+            }
+        }
+
     }
 
     fun isUrlAllowed(urlString: String?): Boolean {
