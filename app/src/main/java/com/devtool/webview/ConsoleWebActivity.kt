@@ -96,10 +96,15 @@ class ConsoleWebActivity: AppCompatActivity() {
                 val code = input.text.toString()
                 if (code.isNotBlank()) {
                     appendConsoleBlockRawInput(code)
-                    //appendConsole("> $code")
                     input.text.clear()
-                    runJavascriptThroughHelper(code)
-                    //runJavascript(code)
+
+                    if (code.trim().equals("clear()", ignoreCase = true)) {
+                        consoleOutputContainer.removeAllViews()
+                        addConsoleHeader()
+                        appendConsoleBlockFromSimpleText("콘솔 초기화됨", "info")
+                    } else {
+                        runJavascriptThroughHelper(code)
+                    }
                 }
                 true
             } else false
